@@ -22,7 +22,8 @@ mixin CachedNetworkImageFactory on WidgetFactory {
       cacheManager: cacheManager,
       errorWidget: (context, _, error) =>
           onErrorBuilder(context, meta, error, src) ?? widget0,
-      fit: BoxFit.fill,
+      fit: BoxFit.scaleDown,
+      filterQuality: FilterQuality.none,
       imageUrl: url,
       progressIndicatorBuilder: (context, _, progress) {
         final t = progress.totalSize;
