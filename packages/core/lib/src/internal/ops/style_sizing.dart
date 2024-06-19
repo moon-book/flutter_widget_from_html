@@ -84,8 +84,7 @@ class StyleSizing {
     }
 
     final parentInput = parentTree.sizingInput;
-    if (parentInput == null ||
-        (parentInput.minWidth == null && parentInput.preferredWidth == null)) {
+    if (parentInput == null || (parentInput.minWidth == null && parentInput.preferredWidth == null)) {
       return placeholder;
     }
 
@@ -98,19 +97,31 @@ class StyleSizing {
     });
   }
 
+  static RegExp latexImg = RegExp(r"""<img.*?src="([^"]*new-latex[^"]*)"[^>]*>(?:<\/img>)?""");
+
   static Widget _sizingBlock(BuildTree tree, WidgetPlaceholder placeholder) {
     if (_skipBuilding[tree] == true || placeholder.isEmpty) {
       return placeholder;
     }
 
-    final input = tree.sizingInput;
+    var input = tree.sizingInput;
+
     if (input == null) {
       return placeholder;
     }
-
+    if (latexImg.hasMatch(tree.element.outerHtml)) {
+      input = _StyleSizingInput(
+        maxHeight: CssLength((input.maxHeight?.number ?? 0) / 2, input.maxHeight?.unit ?? CssLengthUnit.px),
+        maxWidth: CssLength((input.maxWidth?.number ?? 0) / 2, input.maxWidth?.unit ?? CssLengthUnit.px),
+        minHeight: CssLength((input.minHeight?.number ?? 0) / 2, input.minHeight?.unit ?? CssLengthUnit.px),
+        minWidth: CssLength((input.minWidth?.number ?? 0) / 2, input.minWidth?.unit ?? CssLengthUnit.px),
+        preferredAxis: input.preferredAxis,
+        preferredHeight: CssLength((input.preferredHeight?.number ?? 0) / 2, input.preferredHeight?.unit ?? CssLengthUnit.px),
+        preferredWidth: CssLength((input.preferredWidth?.number ?? 0) / 2, input.preferredWidth?.unit ?? CssLengthUnit.px),
+      );
+    }
     return placeholder.wrapWith(
-      (context, child) =>
-          _build(context, child, input, tree.inheritanceResolvers),
+      (context, child) => _build(context, child, input!, tree.inheritanceResolvers),
     );
   }
 
@@ -141,8 +152,7 @@ class StyleSizing {
       return;
     }
 
-    placeholder
-        .wrapWith((c, w) => _build(c, w, input, tree.inheritanceResolvers));
+    placeholder.wrapWith((c, w) => _build(c, w, input, tree.inheritanceResolvers));
   }
 
   static void skip(BuildTree tree) {
@@ -186,8 +196,7 @@ class StyleSizing {
 
 extension on BuildTree {
   _StyleSizingInput? get sizingInput {
-    final input = getNonInherited<_StyleSizingInput>() ??
-        setNonInherited<_StyleSizingInput>(_parse());
+    final input = getNonInherited<_StyleSizingInput>() ?? setNonInherited<_StyleSizingInput>(_parse());
 
     if (input.maxHeight == null &&
         input.maxWidth == null &&
@@ -289,14 +298,11 @@ class _MinWidthZero extends ConstraintsTransformBox {
     super.child,
     required TextDirection textDirection,
   }) : super(
-          alignment: textDirection == TextDirection.ltr
-              ? Alignment.topLeft
-              : Alignment.topRight,
+          alignment: textDirection == TextDirection.ltr ? Alignment.topLeft : Alignment.topRight,
           constraintsTransform: transform,
         );
 
-  static BoxConstraints transform(BoxConstraints bc) =>
-      bc.copyWith(minWidth: 0);
+  static BoxConstraints transform(BoxConstraints bc) => bc.copyWith(minWidth: 0);
 }
 
 @immutable
