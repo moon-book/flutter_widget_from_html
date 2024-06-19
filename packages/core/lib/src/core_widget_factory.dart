@@ -15,8 +15,7 @@ import 'core_html_widget.dart';
 import 'internal/core_ops.dart';
 import 'internal/core_parser.dart';
 import 'internal/margin_vertical.dart';
-import 'internal/platform_specific/fallback.dart'
-    if (dart.library.io) 'internal/platform_specific/io.dart';
+import 'internal/platform_specific/fallback.dart' if (dart.library.io) 'internal/platform_specific/io.dart';
 import 'internal/text_ops.dart' as text_ops;
 import 'utils/roman_numerals_converter.dart';
 
@@ -149,18 +148,14 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
     Color? color,
     DecorationImage? image,
   }) {
-    if (border == null &&
-        borderRadius == null &&
-        color == null &&
-        image == null) {
+    if (border == null && borderRadius == null && color == null && image == null) {
       return child;
     }
 
     final container = child is Container ? child : null;
     final grandChild = container?.child;
     final prevDeco = container?.decoration;
-    final baseDeco =
-        prevDeco is BoxDecoration ? prevDeco : const BoxDecoration();
+    final baseDeco = prevDeco is BoxDecoration ? prevDeco : const BoxDecoration();
     var decoration = baseDeco.copyWith(
       border: border,
       color: color,
@@ -282,8 +277,7 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
     BuildTree tree, {
     GestureTapCallback? onTap,
   }) {
-    final recognizer =
-        onTap != null ? (TapGestureRecognizer()..onTap = onTap) : null;
+    final recognizer = onTap != null ? (TapGestureRecognizer()..onTap = onTap) : null;
     if (recognizer != null) {
       _recognizersNeedDisposing.add(recognizer);
     }
@@ -291,8 +285,7 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
   }
 
   /// Builds horizontal scroll view.
-  Widget? buildHorizontalScrollView(BuildTree tree, Widget child) =>
-      SingleChildScrollView(scrollDirection: Axis.horizontal, child: child);
+  Widget? buildHorizontalScrollView(BuildTree tree, Widget child) => SingleChildScrollView(scrollDirection: Axis.horizontal, child: child);
 
   /// Builds image widget from an [ImageMetadata].
   Widget? buildImage(BuildTree tree, ImageMetadata data) {
@@ -350,23 +343,26 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
 
     final image = src.image;
     final semanticLabel = image?.alt ?? image?.title;
-    return Image(
-      errorBuilder: (context, error, _) =>
-          onErrorBuilder(context, tree, error, src) ?? widget0,
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) {
-          return child;
-        }
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Image(
+        errorBuilder: (context, error, _) => onErrorBuilder(context, tree, error, src) ?? widget0,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) {
+            return child;
+          }
 
-        final t = loadingProgress.expectedTotalBytes;
-        final loaded = loadingProgress.cumulativeBytesLoaded;
-        final v = t != null && t > 0 ? loaded / t : null;
-        return onLoadingBuilder(context, tree, v, src) ?? child;
-      },
-      excludeFromSemantics: semanticLabel == null,
-      fit: BoxFit.fill,
-      image: provider,
-      semanticLabel: semanticLabel,
+          final t = loadingProgress.expectedTotalBytes;
+          final loaded = loadingProgress.cumulativeBytesLoaded;
+          final v = t != null && t > 0 ? loaded / t : null;
+          return onLoadingBuilder(context, tree, v, src) ?? child;
+        },
+        excludeFromSemantics: semanticLabel == null,
+        fit: BoxFit.scaleDown,
+        filterQuality: FilterQuality.high,
+        image: provider,
+        semanticLabel: semanticLabel,
+      ),
     );
   }
 
@@ -402,9 +398,7 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
     Widget child,
     EdgeInsetsGeometry padding,
   ) =>
-      padding == EdgeInsets.zero
-          ? child
-          : Padding(padding: padding, child: child);
+      padding == EdgeInsets.zero ? child : Padding(padding: padding, child: child);
 
   /// Builds [RichText].
   Widget? buildText(
@@ -422,10 +416,8 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
       builder: (context) {
         // TODO: remove Builder when ListView stops providing its own registrar
         final selectionRegistrar = SelectionContainer.maybeOf(context);
-        final selectionColor = selectionRegistrar != null
-            ? DefaultSelectionStyle.of(context).selectionColor ??
-                DefaultSelectionStyle.defaultColor
-            : null;
+        final selectionColor =
+            selectionRegistrar != null ? DefaultSelectionStyle.of(context).selectionColor ?? DefaultSelectionStyle.defaultColor : null;
 
         Widget built = RichText(
           maxLines: maxLines,
@@ -473,14 +465,11 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
   }
 
   /// Builds [Tooltip].
-  Widget? buildTooltip(BuildTree tree, Widget child, String message) =>
-      Tooltip(message: message, child: child);
+  Widget? buildTooltip(BuildTree tree, Widget child, String message) => Tooltip(message: message, child: child);
 
-  StylesMap? customStylesBuilder(dom.Element element) =>
-      _widget?.customStylesBuilder?.call(element);
+  StylesMap? customStylesBuilder(dom.Element element) => _widget?.customStylesBuilder?.call(element);
 
-  Widget? customWidgetBuilder(dom.Element element) =>
-      _widget?.customWidgetBuilder?.call(element);
+  Widget? customWidgetBuilder(dom.Element element) => _widget?.customWidgetBuilder?.call(element);
 
   @override
   void dispose() {
@@ -563,9 +552,7 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
       return null;
     }
 
-    final package = uri.queryParameters.containsKey('package') == true
-        ? uri.queryParameters['package']
-        : null;
+    final package = uri.queryParameters.containsKey('package') == true ? uri.queryParameters['package'] : null;
 
     return AssetImage(assetName, package: package);
   }
@@ -591,8 +578,7 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
   }
 
   /// Returns a [NetworkImage].
-  ImageProvider? imageProviderFromNetwork(String url) =>
-      url.isNotEmpty ? NetworkImage(url) : null;
+  ImageProvider? imageProviderFromNetwork(String url) => url.isNotEmpty ? NetworkImage(url) : null;
 
   /// Builder for error widget if a complicated element failed to render.
   ///
@@ -639,9 +625,7 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(8),
-        child: debugDeterministicLoadingWidget
-            ? const Text('Loading...')
-            : CircularProgressIndicator.adaptive(value: loadingProgress),
+        child: debugDeterministicLoadingWidget ? const Text('Loading...') : CircularProgressIndicator.adaptive(value: loadingProgress),
       ),
     );
   }
@@ -1074,8 +1058,7 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
 
       case kCssFontStyle:
         final term = style.term;
-        final fontStyle =
-            term != null ? text_ops.fontStyleTryParse(term) : null;
+        final fontStyle = term != null ? text_ops.fontStyleTryParse(term) : null;
         if (fontStyle != null) {
           tree.inherit(text_ops.fontStyle, fontStyle);
         }
@@ -1083,8 +1066,7 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
 
       case kCssFontWeight:
         final value = style.value;
-        final fontWeight =
-            value != null ? text_ops.fontWeightTryParse(value) : null;
+        final fontWeight = value != null ? text_ops.fontWeightTryParse(value) : null;
         if (fontWeight != null) {
           tree.inherit(text_ops.fontWeight, fontWeight);
         }
@@ -1140,8 +1122,7 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
 
       case kCssWhitespace:
         final term = style.term;
-        final whitespace =
-            term != null ? text_ops.whitespaceTryParse(term) : null;
+        final whitespace = term != null ? text_ops.whitespaceTryParse(term) : null;
         if (whitespace != null) {
           tree.inherit(text_ops.whitespace, whitespace);
         }
@@ -1239,17 +1220,13 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
     return value != null ? {kCssDirection: value} : const {};
   }
 
-  static StylesMap _cssDisplayBlock(dom.Element _) =>
-      {kCssDisplay: kCssDisplayBlock};
+  static StylesMap _cssDisplayBlock(dom.Element _) => {kCssDisplay: kCssDisplayBlock};
 
-  static StylesMap _cssDisplayNone(dom.Element _) =>
-      {kCssDisplay: kCssDisplayNone};
+  static StylesMap _cssDisplayNone(dom.Element _) => {kCssDisplay: kCssDisplayNone};
 
-  static StylesMap _cssDisplayTable(dom.Element _) =>
-      {kCssDisplay: kCssDisplayTable};
+  static StylesMap _cssDisplayTable(dom.Element _) => {kCssDisplay: kCssDisplayTable};
 
-  static StylesMap _cssTextAlignCenter(dom.Element _) =>
-      {kCssTextAlign: kCssTextAlignCenter};
+  static StylesMap _cssTextAlignCenter(dom.Element _) => {kCssTextAlign: kCssTextAlignCenter};
 
   static StylesMap _cssTextAlignFromAttribute(dom.Element element) {
     final value = element.attributes[kAttributeAlign];
@@ -1262,14 +1239,11 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
     return value != null ? {kCssTextAlign: value} : const {};
   }
 
-  static StylesMap _cssTextDecorationLineThrough(dom.Element _) =>
-      {kCssTextDecorationLine: kCssTextDecorationLineThrough};
+  static StylesMap _cssTextDecorationLineThrough(dom.Element _) => {kCssTextDecorationLine: kCssTextDecorationLineThrough};
 
-  static StylesMap _cssTextDecorationUnderline(dom.Element _) =>
-      {kCssTextDecorationLine: kCssTextDecorationUnderline};
+  static StylesMap _cssTextDecorationUnderline(dom.Element _) => {kCssTextDecorationLine: kCssTextDecorationUnderline};
 
-  static StylesMap _cssVerticalAlignMiddle(dom.Element _) =>
-      {kCssVerticalAlign: kCssVerticalAlignMiddle};
+  static StylesMap _cssVerticalAlignMiddle(dom.Element _) => {kCssVerticalAlign: kCssVerticalAlignMiddle};
 
   static StylesMap _tagAcronym(dom.Element _) => {
         kCssTextDecorationLine: kCssTextDecorationUnderline,
