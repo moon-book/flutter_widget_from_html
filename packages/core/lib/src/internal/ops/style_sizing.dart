@@ -110,13 +110,13 @@ class StyleSizing {
     }
     if (latexImg.hasMatch(tree.element.outerHtml)) {
       input = _StyleSizingInput(
-        maxHeight: CssLength((input.maxHeight?.number ?? 0) / 2, input.maxHeight?.unit ?? CssLengthUnit.px),
-        maxWidth: CssLength((input.maxWidth?.number ?? 0) / 2, input.maxWidth?.unit ?? CssLengthUnit.px),
-        minHeight: CssLength((input.minHeight?.number ?? 0) / 2, input.minHeight?.unit ?? CssLengthUnit.px),
-        minWidth: CssLength((input.minWidth?.number ?? 0) / 2, input.minWidth?.unit ?? CssLengthUnit.px),
+        maxHeight: CssLength((input.maxHeight?.number ?? 0) / 2.5, input.maxHeight?.unit ?? CssLengthUnit.px),
+        maxWidth: CssLength((input.maxWidth?.number ?? 0) / 2.5, input.maxWidth?.unit ?? CssLengthUnit.px),
+        minHeight: CssLength((input.minHeight?.number ?? 0) / 2.5, input.minHeight?.unit ?? CssLengthUnit.px),
+        minWidth: CssLength((input.minWidth?.number ?? 0) / 2.5, input.minWidth?.unit ?? CssLengthUnit.px),
         preferredAxis: input.preferredAxis,
-        preferredHeight: CssLength((input.preferredHeight?.number ?? 0) / 2, input.preferredHeight?.unit ?? CssLengthUnit.px),
-        preferredWidth: CssLength((input.preferredWidth?.number ?? 0) / 2, input.preferredWidth?.unit ?? CssLengthUnit.px),
+        preferredHeight: CssLength((input.preferredHeight?.number ?? 0) / 2.5, input.preferredHeight?.unit ?? CssLengthUnit.px),
+        preferredWidth: CssLength((input.preferredWidth?.number ?? 0) / 2.5, input.preferredWidth?.unit ?? CssLengthUnit.px),
       );
     }
     return placeholder.wrapWith(
@@ -128,6 +128,18 @@ class StyleSizing {
     final input = tree.sizingInput;
     if (input == null) {
       return;
+    }
+
+    if (latexImg.hasMatch(tree.element.outerHtml)) {
+      input = _StyleSizingInput(
+        maxHeight: CssLength((input.maxHeight?.number ?? 0) / 2.5, input.maxHeight?.unit ?? CssLengthUnit.px),
+        maxWidth: CssLength((input.maxWidth?.number ?? 0) / 2.5, input.maxWidth?.unit ?? CssLengthUnit.px),
+        minHeight: CssLength((input.minHeight?.number ?? 0) / 2.5, input.minHeight?.unit ?? CssLengthUnit.px),
+        minWidth: CssLength((input.minWidth?.number ?? 0) / 2.5, input.minWidth?.unit ?? CssLengthUnit.px),
+        preferredAxis: input.preferredAxis,
+        preferredHeight: CssLength((input.preferredHeight?.number ?? 0) / 2.5, input.preferredHeight?.unit ?? CssLengthUnit.px),
+        preferredWidth: CssLength((input.preferredWidth?.number ?? 0) / 2.5, input.preferredWidth?.unit ?? CssLengthUnit.px),
+      );
     }
 
     WidgetPlaceholder? placeholder;
