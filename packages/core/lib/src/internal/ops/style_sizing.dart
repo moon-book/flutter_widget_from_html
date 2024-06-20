@@ -164,7 +164,7 @@ class StyleSizing {
       return;
     }
 
-    placeholder.wrapWith((c, w) => _build(c, w, input, tree.inheritanceResolvers));
+    placeholder.wrapWith((c, w) => _build(c, w, input!, tree.inheritanceResolvers));
   }
 
   static void skip(BuildTree tree) {
