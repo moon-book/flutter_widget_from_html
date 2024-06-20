@@ -371,7 +371,10 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
     final image = src.image;
     final semanticLabel = image?.alt ?? image?.title;
     if (url.contains("new-latex")) {
-      var image = Image.network(url);
+      final image = Image.network(
+        url,
+        fit: BoxFit.scaleDown,
+      );
       return FutureBuilder(
         future: getImageInfo(image),
         builder: (BuildContext context, AsyncSnapshot<ImageInfo> snapshot) {
