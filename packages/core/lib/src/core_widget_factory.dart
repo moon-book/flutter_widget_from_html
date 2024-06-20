@@ -343,6 +343,32 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
 
     final image = src.image;
     final semanticLabel = image?.alt ?? image?.title;
+    if (url.contains("new-latex")) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2.0),
+        child: Transform.scale(
+          scale: 0.4,
+          child: Image(
+            errorBuilder: (context, error, _) => onErrorBuilder(context, tree, error, src) ?? widget0,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) {
+                return child;
+              }
+
+              final t = loadingProgress.expectedTotalBytes;
+              final loaded = loadingProgress.cumulativeBytesLoaded;
+              final v = t != null && t > 0 ? loaded / t : null;
+              return onLoadingBuilder(context, tree, v, src) ?? child;
+            },
+            excludeFromSemantics: semanticLabel == null,
+            fit: BoxFit.scaleDown,
+            filterQuality: FilterQuality.high,
+            image: provider,
+            semanticLabel: semanticLabel,
+          ),
+        ),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Image(
