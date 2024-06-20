@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:ui' as ui;
+
 import 'package:csslib/visitor.dart' as css;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart'
@@ -323,6 +326,30 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
     return built;
   }
 
+  Future<ImageInfo> getImageInfo(Image img) async {
+    final c = Completer<ImageInfo>();
+    img.image.resolve(ImageConfiguration.empty).addListener(ImageStreamListener((ImageInfo i, bool _) {
+      c.complete(i);
+    }));
+    return c.future;
+  }
+
+  Future<ui.Image> _getImage(String url) {
+    final Completer<ui.Image> completer = Completer<ui.Image>();
+    NetworkImage(url)
+        .resolve(
+      ImageConfiguration.empty,
+    )
+        .addListener(
+      ImageStreamListener(
+        (ImageInfo image, bool _) {
+          completer.complete(image.image);
+        },
+      ),
+    );
+    return completer.future;
+  }
+
   /// Builds [Image].
   Widget? buildImageWidget(BuildTree tree, ImageSource src) {
     final url = src.url;
@@ -344,29 +371,29 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
     final image = src.image;
     final semanticLabel = image?.alt ?? image?.title;
     if (url.contains("new-latex")) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2.0),
-        child: Transform.scale(
-          scale: 0.4,
-          child: Image(
-            errorBuilder: (context, error, _) => onErrorBuilder(context, tree, error, src) ?? widget0,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) {
-                return child;
-              }
-
-              final t = loadingProgress.expectedTotalBytes;
-              final loaded = loadingProgress.cumulativeBytesLoaded;
-              final v = t != null && t > 0 ? loaded / t : null;
-              return onLoadingBuilder(context, tree, v, src) ?? child;
-            },
-            excludeFromSemantics: semanticLabel == null,
-            fit: BoxFit.scaleDown,
-            filterQuality: FilterQuality.high,
-            image: provider,
-            semanticLabel: semanticLabel,
-          ),
-        ),
+      var image = Image.network(url);
+      return FutureBuilder(
+        future: getImageInfo(image),
+        builder: (BuildContext context, AsyncSnapshot<ImageInfo> snapshot) {
+          if (snapshot.hasData) {
+            final ImageInfo imageInfo = snapshot.data!;
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 3.0),
+              child: SizedBox(
+                height: imageInfo.image.height.toDouble() / 2.5,
+                width: imageInfo.image.width.toDouble() / 2.5,
+                child: FittedBox(child: image),
+              ),
+            );
+          }
+          return Align(
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(),
+            ),
+          );
+        },
       );
     }
     return Padding(
