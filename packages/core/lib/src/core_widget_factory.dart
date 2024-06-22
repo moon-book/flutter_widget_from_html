@@ -3,11 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:csslib/visitor.dart' as css;
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart'
-    show
-        // we want to limit Material usages to be as generic as possible
-        CircularProgressIndicator,
-        Tooltip;
+import 'package:flutter/material.dart' show CircularProgressIndicator, Colors, Icons, Tooltip;
 import 'package:flutter/widgets.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:logging/logging.dart';
@@ -328,9 +324,16 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
 
   Future<ImageInfo> getImageInfo(Image img) async {
     final c = Completer<ImageInfo>();
-    img.image.resolve(ImageConfiguration.empty).addListener(ImageStreamListener((ImageInfo i, bool _) {
-      c.complete(i);
-    }));
+    img.image.resolve(ImageConfiguration.empty).addListener(
+          ImageStreamListener(
+            (ImageInfo i, bool _) {
+              c.complete(i);
+            },
+            onError: (obj, stk) {
+              return c.completeError(obj, stk);
+            },
+          ),
+        );
     return c.future;
   }
 
@@ -389,11 +392,25 @@ class WidgetFactory extends WidgetFactoryResetter with AnchorWidgetFactory {
               ),
             );
           }
-          return Align(
+          if (snapshot.hasError) {
+            return const Padding(
+              padding: EdgeInsets.all(3),
+              child: Icon(
+                Icons.warning_amber_rounded,
+                size: 20,
+                color: Colors.amber,
+              ),
+            );
+          }
+          return const Padding(
+            padding: EdgeInsets.all(8.0),
             child: SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(),
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.grey,
+              ),
             ),
           );
         },
