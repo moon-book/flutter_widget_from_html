@@ -83,8 +83,7 @@ class StyleSizing {
     }
 
     final parentInput = parentTree.sizingInput;
-    if (parentInput == null ||
-        (parentInput.minWidth == null && parentInput.preferredWidth == null)) {
+    if (parentInput == null || (parentInput.minWidth == null && parentInput.preferredWidth == null)) {
       return placeholder;
     }
 
@@ -97,26 +96,57 @@ class StyleSizing {
     });
   }
 
+  static RegExp latexImg = RegExp(r"""<img.*?src="([^"]*new-latex[^"]*)"[^>]*>(?:<\/img>)?""");
+
   static Widget _sizingBlock(BuildTree tree, WidgetPlaceholder placeholder) {
     if (placeholder.isEmpty) {
       return placeholder;
     }
 
-    final input = tree.sizingInput;
+    var input = tree.sizingInput;
     if (input == null) {
       return placeholder;
     }
-
+    if (latexImg.hasMatch(tree.element.outerHtml)) {
+      input = _StyleSizingInput(
+        maxHeight: input.maxHeight != null ? CssLength((input.maxHeight?.number ?? 0) / 2.5, input.maxHeight?.unit ?? CssLengthUnit.px) : null,
+        maxWidth: input.maxWidth != null ? CssLength((input.maxWidth?.number ?? 0) / 2.5, input.maxWidth?.unit ?? CssLengthUnit.px) : null,
+        minHeight: input.minHeight != null ? CssLength((input.minHeight?.number ?? 0) / 2.5, input.minHeight?.unit ?? CssLengthUnit.px) : null,
+        minWidth: input.minWidth != null ? CssLength((input.minWidth?.number ?? 0) / 2.5, input.minWidth?.unit ?? CssLengthUnit.px) : null,
+        preferredAxis: input.preferredAxis,
+        preferredHeight: input.preferredHeight != null
+            ? CssLength((input.preferredHeight?.number ?? 0) / 2.5, input.preferredHeight?.unit ?? CssLengthUnit.px)
+            : null,
+        preferredWidth: input.preferredWidth != null
+            ? CssLength((input.preferredWidth?.number ?? 0) / 2.5, input.preferredWidth?.unit ?? CssLengthUnit.px)
+            : null,
+      );
+    }
     return placeholder.wrapWith(
-      (context, child) =>
-          _build(context, child, input, tree.inheritanceResolvers),
+      (context, child) => _build(context, child, input!, tree.inheritanceResolvers),
     );
   }
 
   static void _sizingInline(BuildTree tree) {
-    final input = tree.sizingInput;
+    var input = tree.sizingInput;
     if (input == null) {
       return;
+    }
+
+    if (latexImg.hasMatch(tree.element.outerHtml)) {
+      input = _StyleSizingInput(
+        maxHeight: input.maxHeight != null ? CssLength((input.maxHeight?.number ?? 0) / 2.5, input.maxHeight?.unit ?? CssLengthUnit.px) : null,
+        maxWidth: input.maxWidth != null ? CssLength((input.maxWidth?.number ?? 0) / 2.5, input.maxWidth?.unit ?? CssLengthUnit.px) : null,
+        minHeight: input.minHeight != null ? CssLength((input.minHeight?.number ?? 0) / 2.5, input.minHeight?.unit ?? CssLengthUnit.px) : null,
+        minWidth: input.minWidth != null ? CssLength((input.minWidth?.number ?? 0) / 2.5, input.minWidth?.unit ?? CssLengthUnit.px) : null,
+        preferredAxis: input.preferredAxis,
+        preferredHeight: input.preferredHeight != null
+            ? CssLength((input.preferredHeight?.number ?? 0) / 2.5, input.preferredHeight?.unit ?? CssLengthUnit.px)
+            : null,
+        preferredWidth: input.preferredWidth != null
+            ? CssLength((input.preferredWidth?.number ?? 0) / 2.5, input.preferredWidth?.unit ?? CssLengthUnit.px)
+            : null,
+      );
     }
 
     WidgetPlaceholder? placeholder;
@@ -136,8 +166,7 @@ class StyleSizing {
       return;
     }
 
-    placeholder
-        .wrapWith((c, w) => _build(c, w, input, tree.inheritanceResolvers));
+    placeholder.wrapWith((c, w) => _build(c, w, input!, tree.inheritanceResolvers));
   }
 
   static Widget _build(
@@ -176,8 +205,7 @@ class StyleSizing {
 
 extension on BuildTree {
   _StyleSizingInput? get sizingInput {
-    final input = getNonInherited<_StyleSizingInput>() ??
-        setNonInherited<_StyleSizingInput>(_parse());
+    final input = getNonInherited<_StyleSizingInput>() ?? setNonInherited<_StyleSizingInput>(_parse());
 
     if (input.maxHeight == null &&
         input.maxWidth == null &&
