@@ -18,6 +18,18 @@ mixin CachedNetworkImageFactory on WidgetFactory {
       return super.buildImageWidget(meta, src);
     }
 
+    if (url.contains('new-latex')) {
+      return _LatexImageWidget(
+        url: url,
+        cacheManager: cacheManager,
+        errorBuilder: (context, url, error) =>
+            onErrorBuilder(context, meta, error, src) ?? widget0,
+        meta: meta,
+        src: src,
+        widget0: widget0,
+      );
+    }
+
     return CachedNetworkImage(
       cacheManager: cacheManager,
       errorWidget: (context, _, error) =>
@@ -25,11 +37,74 @@ mixin CachedNetworkImageFactory on WidgetFactory {
       fit: BoxFit.scaleDown,
       filterQuality: FilterQuality.none,
       imageUrl: url,
-      progressIndicatorBuilder: (context, _, progress) {
-        final t = progress.totalSize;
-        final v = t != null && t > 0 ? progress.downloaded / t : null;
-        return onLoadingBuilder(context, meta, v, src) ?? widget0;
+      progressIndicatorBuilder: (context, _, progress) =>
+          const Text('⏳', style: TextStyle(fontSize: 16)),
+    );
+  }
+}
+
+class _LatexImageWidget extends StatefulWidget {
+  final String url;
+  final BaseCacheManager? cacheManager;
+  final Widget? Function(BuildContext, String, dynamic) errorBuilder;
+  final BuildMetadata meta;
+  final ImageSource src;
+  final Widget widget0;
+
+  const _LatexImageWidget({
+    required this.url,
+    this.cacheManager,
+    required this.errorBuilder,
+    required this.meta,
+    required this.src,
+    required this.widget0,
+  });
+
+  @override
+  State<_LatexImageWidget> createState() => _LatexImageWidgetState();
+}
+
+class _LatexImageWidgetState extends State<_LatexImageWidget> {
+  late final CachedNetworkImage _cachedNetworkImage;
+  Size _size = Size.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    _cachedNetworkImage = CachedNetworkImage(
+      cacheManager: widget.cacheManager,
+      errorWidget: (context, url, error) =>
+          widget.errorBuilder(context, url, error) ?? widget.widget0,
+      fit: BoxFit.scaleDown,
+      imageUrl: widget.url,
+      progressIndicatorBuilder: (context, url, progress) =>
+          const Text('⏳', style: TextStyle(fontSize: 16)),
+      imageBuilder: (context, imageProvider) {
+        Image(image: imageProvider)
+            .image
+            .resolve(ImageConfiguration())
+            .addListener(
+          ImageStreamListener((ImageInfo info, bool sync) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) {
+                setState(() {
+                  _size = Size(info.image.width / 2.5, info.image.height / 2.5);
+                });
+              }
+            });
+          }),
+        );
+        return Image(image: imageProvider, fit: BoxFit.scaleDown);
       },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: _size.width,
+      height: _size.height,
+      child: _cachedNetworkImage,
     );
   }
 }
